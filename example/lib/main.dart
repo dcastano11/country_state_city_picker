@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               SizedBox(height: 30.0),
               SelectState(
+                titleSpacing: 5,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius:

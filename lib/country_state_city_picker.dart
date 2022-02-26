@@ -15,6 +15,8 @@ class SelectState extends StatefulWidget {
   final VoidCallback? onStateTap;
   final VoidCallback? onCityTap;
   final TextStyle? style;
+  final TextStyle? labelTextStyle;
+  final double? titleSpacing;
   final Color? dropdownColor;
   final InputDecoration decoration;
   final double spacing;
@@ -31,7 +33,9 @@ class SelectState extends StatefulWidget {
       this.dropdownColor,
       this.onCountryTap,
       this.onStateTap,
-      this.onCityTap})
+      this.onCityTap,
+      this.labelTextStyle,
+      this.titleSpacing})
       : super(key: key);
 
   @override
@@ -39,12 +43,12 @@ class SelectState extends StatefulWidget {
 }
 
 class _SelectStateState extends State<SelectState> {
-  List<String> _cities = ["Choose City"];
-  List<String> _country = ["Choose Country"];
-  String _selectedCity = "Choose City";
-  String _selectedCountry = "Choose Country";
-  String _selectedState = "Choose State/Province";
-  List<String> _states = ["Choose State/Province"];
+  List<String> _cities = ["Escoge una ciudad"];
+  List<String> _country = ["Escoge un país"];
+  String _selectedCity = "Escoge una ciudad";
+  String _selectedCountry = "Escoge un país";
+  String _selectedState = "Escoge una región";
+  List<String> _states = ["Escoge una región"];
   var responses;
 
   @override
@@ -137,8 +141,8 @@ class _SelectStateState extends State<SelectState> {
   void _onSelectedState(String value) {
     if (!mounted) return;
     setState(() {
-      _selectedCity = "Choose City";
-      _cities = ["Choose City"];
+      _selectedCity = "Escoge una ciudad";
+      _cities = ["Escoge una ciudad"];
       _selectedState = value;
       this.widget.onStateChanged(value);
       getCity();
@@ -158,6 +162,17 @@ class _SelectStateState extends State<SelectState> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        Row(
+          children: [
+            Text(
+              "País",
+              style: widget.labelTextStyle,
+            ),
+          ],
+        ),
+        SizedBox(
+          height: widget.titleSpacing,
+        ),
         InputDecorator(
           decoration: widget.decoration,
           child: DropdownButtonHideUnderline(
@@ -190,6 +205,17 @@ class _SelectStateState extends State<SelectState> {
         SizedBox(
           height: widget.spacing,
         ),
+        Row(
+          children: [
+            Text(
+              "Región",
+              style: widget.labelTextStyle,
+            ),
+          ],
+        ),
+        SizedBox(
+          height: widget.titleSpacing,
+        ),
         InputDecorator(
           decoration: widget.decoration,
           child: DropdownButtonHideUnderline(
@@ -220,7 +246,17 @@ class _SelectStateState extends State<SelectState> {
         SizedBox(
           height: widget.spacing,
         ),
-        Text("Ciudad"),
+        Row(
+          children: [
+            Text(
+              "Ciudad",
+              style: widget.labelTextStyle,
+            ),
+          ],
+        ),
+        SizedBox(
+          height: widget.titleSpacing,
+        ),
         InputDecorator(
           decoration: widget.decoration,
           child: DropdownButtonHideUnderline(
