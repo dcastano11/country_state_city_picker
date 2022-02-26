@@ -20,6 +20,7 @@ class SelectState extends StatefulWidget {
   final Color? dropdownColor;
   final InputDecoration decoration;
   final double spacing;
+  final bool withEmoji;
 
   const SelectState(
       {Key? key,
@@ -35,7 +36,8 @@ class SelectState extends StatefulWidget {
       this.onStateTap,
       this.onCityTap,
       this.labelTextStyle,
-      this.titleSpacing})
+      this.titleSpacing,
+      this.withEmoji = false})
       : super(key: key);
 
   @override
@@ -71,7 +73,8 @@ class _SelectStateState extends State<SelectState> {
       model.emoji = data['emoji'];
       if (!mounted) return;
       setState(() {
-        _country.add(model.emoji! + "    " + model.name!);
+        _country.add(
+            widget.withEmoji ? model.emoji ?? "" + "    " : "" + model.name!);
       });
     });
 
@@ -82,7 +85,9 @@ class _SelectStateState extends State<SelectState> {
     var response = await getResponse();
     var takestate = response
         .map((map) => StatusModel.StatusModel.fromJson(map))
-        .where((item) => item.emoji + "    " + item.name == _selectedCountry)
+        .where((item) => ((widget.withEmoji
+            ? item.emoji + "    "
+            : "") + item.name == _selectedCountry))
         .map((item) => item.state)
         .toList();
     var states = takestate as List;
@@ -105,7 +110,9 @@ class _SelectStateState extends State<SelectState> {
     var response = await getResponse();
     var takestate = response
         .map((map) => StatusModel.StatusModel.fromJson(map))
-        .where((item) => item.emoji + "    " + item.name == _selectedCountry)
+        .where((item) => ((widget.withEmoji
+            ? item.emoji + "    "
+            : "") + item.name == _selectedCountry))
         .map((item) => item.state)
         .toList();
     var states = takestate as List;
