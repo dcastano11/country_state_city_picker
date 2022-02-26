@@ -220,6 +220,7 @@ class _SelectStateState extends State<SelectState> {
         SizedBox(
           height: widget.spacing,
         ),
+        Text("Ciudad"),
         InputDecorator(
           decoration: widget.decoration,
           child: DropdownButtonHideUnderline(

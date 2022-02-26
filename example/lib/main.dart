@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Country State and City Picker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        //visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
     );
