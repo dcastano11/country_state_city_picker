@@ -1,3 +1,77 @@
+class ModelAllLocation {
+  ModelAllLocation({
+    required this.id,
+    required this.country,
+    required this.region,
+  });
+
+  int id;
+  String country;
+  List<Region> region;
+
+  factory ModelAllLocation.fromJson(Map<String, dynamic> json) =>
+      ModelAllLocation(
+        id: json["id"],
+        country: json["country"],
+        region:
+            List<Region>.from(json["region"].map((x) => Region.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "country": country,
+        "region": List<dynamic>.from(region.map((x) => x.toJson())),
+      };
+}
+
+class Region {
+  Region({
+    required this.id,
+    required this.region,
+    required this.countryId,
+    required this.city,
+  });
+
+  int id;
+  String region;
+  int countryId;
+  List<City2> city;
+
+  factory Region.fromJson(Map<String, dynamic> json) => Region(
+        id: json["id"],
+        region: json["region"],
+        countryId: json["country_id"],
+        city: List<City2>.from(json["city"].map((x) => City2.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "region": region,
+        "country_id": countryId,
+        "city": List<dynamic>.from(city.map((x) => x.toJson())),
+      };
+}
+
+class City2 {
+  City2({
+    required this.city,
+    required this.regionId,
+  });
+
+  String city;
+  int regionId;
+
+  factory City2.fromJson(Map<String, dynamic> json) => City2(
+        city: json["city"],
+        regionId: json["region_id"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "city": city,
+        "region_id": regionId,
+      };
+}
+
 class StatusModel {
   int? id;
   String? name;

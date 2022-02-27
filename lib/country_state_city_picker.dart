@@ -1,13 +1,17 @@
 library country_state_city_picker_nona;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'model/select_status_model.dart' as StatusModel;
+import 'package:http/http.dart' as http;
 
 class SelectState extends StatefulWidget {
+  final String baseUrl;
+  final String api;
   final ValueChanged<String> onCountryChanged;
   final ValueChanged<String> onStateChanged;
   final ValueChanged<String> onCityChanged;
@@ -21,6 +25,7 @@ class SelectState extends StatefulWidget {
   final InputDecoration decoration;
   final double spacing;
   final bool withEmoji;
+  final String accessToken;
 
   const SelectState(
       {Key? key,
@@ -37,7 +42,10 @@ class SelectState extends StatefulWidget {
       this.onCityTap,
       this.labelTextStyle,
       this.titleSpacing,
-      this.withEmoji = false})
+      this.withEmoji = false,
+      required this.baseUrl,
+      required this.api,
+      required this.accessToken})
       : super(key: key);
 
   @override
@@ -65,16 +73,33 @@ class _SelectStateState extends State<SelectState> {
     return jsonDecode(res);
   }
 
+  Future getResponse2(/* String baseUrl, String api */) async {
+    var res = await getAll();
+    return jsonDecode(res.body);
+  }
+
+  Future<http.Response> getAll() {
+    String auth = "Bearer ${widget.accessToken}";
+
+    var headers2 = {
+      HttpHeaders.authorizationHeader: auth,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    };
+
+    return http.get(Uri.https(widget.baseUrl, widget.api), headers: headers2);
+  }
+
   Future getCounty() async {
-    var countryres = await getResponse() as List;
+    var countryres = await getResponse2() as List;
     countryres.forEach((data) {
-      var model = StatusModel.StatusModel();
+      /*  var model = StatusModel.StatusModel();
       model.name = data['name'];
-      model.emoji = data['emoji'];
+      model.emoji = data['emoji']; */
       if (!mounted) return;
       setState(() {
         _country.add(
-            widget.withEmoji ? model.emoji ?? "" + "    " : "" + model.name!);
+            /* widget.withEmoji ? model.emoji ?? "" + "    " : "" +  */ data[
+                "country"]!);
       });
     });
 
@@ -82,19 +107,20 @@ class _SelectStateState extends State<SelectState> {
   }
 
   Future getState() async {
-    var response = await getResponse();
+    var response = await getResponse2() as List;
     var takestate = response
-        .map((map) => StatusModel.StatusModel.fromJson(map))
-        .where((item) => ((widget.withEmoji
-            ? item.emoji + "    "
-            : "") + item.name == _selectedCountry))
-        .map((item) => item.state)
+        .map((map) => StatusModel.ModelAllLocation.fromJson(map))
+        .where((item) =>
+            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ item
+                    .country ==
+                _selectedCountry))
+        .map((item) => item.region)
         .toList();
-    var states = takestate as List;
+    var states = takestate;
     states.forEach((f) {
       if (!mounted) return;
       setState(() {
-        var name = f.map((item) => item.name).toList();
+        var name = f.map((item) => item.region).toList();
         for (var statename in name) {
           print(statename.toString());
 
@@ -107,22 +133,22 @@ class _SelectStateState extends State<SelectState> {
   }
 
   Future getCity() async {
-    var response = await getResponse();
+    var response = await getResponse2() as List;
     var takestate = response
-        .map((map) => StatusModel.StatusModel.fromJson(map))
-        .where((item) => ((widget.withEmoji
-            ? item.emoji + "    "
-            : "") + item.name == _selectedCountry))
-        .map((item) => item.state)
+        .map((map) => StatusModel.ModelAllLocation.fromJson(map))
+        .where((item) =>
+            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ item.country ==
+                _selectedCountry))
+        .map((item) => item.region)
         .toList();
-    var states = takestate as List;
+    var states = takestate;
     states.forEach((f) {
-      var name = f.where((item) => item.name == _selectedState);
+      var name = f.where((item) => item.region == _selectedState);
       var cityname = name.map((item) => item.city).toList();
       cityname.forEach((ci) {
         if (!mounted) return;
         setState(() {
-          var citiesname = ci.map((item) => item.name).toList();
+          var citiesname = ci.map((item) => item.city).toList();
           for (var citynames in citiesname) {
             print(citynames.toString());
 

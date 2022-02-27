@@ -30,6 +30,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String? countryValue;
   String? stateValue;
   String? cityValue;
+  String apiGetAll = "/api/getAll";
+  String baseUrl = "zutricsprodapi.azurewebsites.net";
 
   void displayMsg(msg) {
     print(msg);
@@ -48,7 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               SizedBox(height: 30.0),
               SelectState(
+                baseUrl: baseUrl,
+                api: apiGetAll,
                 titleSpacing: 5,
+                accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvenV0cmljc3Byb2RhcGkuYXp1cmV3ZWJzaXRlcy5uZXRcL2FwaVwvbG9naW4tYXBwbGUiLCJpYXQiOjE2NDU4MDc3NzksImV4cCI6NzA0NTgwNzc3OSwibmJmIjoxNjQ1ODA3Nzc5LCJqdGkiOiJjYTVGajFVTVMwcjltYnhMIiwic3ViIjoxMTUxMywicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.TX8olPbAyPz7QA7jL06uDxTnk6bsJTs__jzKcdJ7olQ",
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius:
