@@ -5,6 +5,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:html/parser.dart';
+import 'package:html_unescape/html_unescape.dart';
+//import 'package:html_unescape/html_unescape_small.dart';
 
 import 'model/select_status_model.dart' as StatusModel;
 import 'package:http/http.dart' as http;
@@ -97,9 +100,10 @@ class _SelectStateState extends State<SelectState> {
       model.emoji = data['emoji']; */
       if (!mounted) return;
       setState(() {
-        _country.add(
-            /* widget.withEmoji ? model.emoji ?? "" + "    " : "" +  */ data[
-                "country"]!);
+        var a = HtmlUnescape().convert(data["country"]!);
+        //var a=parseFragment(data["country"]!).toString();
+        _country
+            .add(/* widget.withEmoji ? model.emoji ?? "" + "    " : "" +  */ a);
       });
     });
 
@@ -111,8 +115,8 @@ class _SelectStateState extends State<SelectState> {
     var takestate = response
         .map((map) => StatusModel.ModelAllLocation.fromJson(map))
         .where((item) =>
-            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ item
-                    .country ==
+            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ HtmlUnescape()
+                    .convert(item.country) ==
                 _selectedCountry))
         .map((item) => item.region)
         .toList();
@@ -124,7 +128,7 @@ class _SelectStateState extends State<SelectState> {
         for (var statename in name) {
           print(statename.toString());
 
-          _states.add(statename.toString());
+          _states.add(HtmlUnescape().convert(statename.toString()));
         }
       });
     });
@@ -137,13 +141,15 @@ class _SelectStateState extends State<SelectState> {
     var takestate = response
         .map((map) => StatusModel.ModelAllLocation.fromJson(map))
         .where((item) =>
-            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ item.country ==
+            (/* (widget.withEmoji ? item.emoji + "    " : "") + */ HtmlUnescape()
+                    .convert(item.country) ==
                 _selectedCountry))
         .map((item) => item.region)
         .toList();
     var states = takestate;
     states.forEach((f) {
-      var name = f.where((item) => item.region == _selectedState);
+      var name = f.where(
+          (item) => HtmlUnescape().convert(item.region) == _selectedState);
       var cityname = name.map((item) => item.city).toList();
       cityname.forEach((ci) {
         if (!mounted) return;
@@ -152,7 +158,7 @@ class _SelectStateState extends State<SelectState> {
           for (var citynames in citiesname) {
             print(citynames.toString());
 
-            _cities.add(citynames.toString());
+            _cities.add(HtmlUnescape().convert(citynames.toString()));
           }
         });
       });
