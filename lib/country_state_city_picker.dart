@@ -107,7 +107,7 @@ class _SelectStateState extends State<SelectState> {
       /********************* */
       if (widget.initialCityId != null) {
         var cityResponse =
-            (await getResponse3(widget.initialCityId.toString()))["data"];
+            (await getResponse3(widget.initialStateId.toString()))["data"];
         var city = cityResponse
             .where((value) {
               return (value["code"].toString() ==
