@@ -103,7 +103,8 @@ class _SelectStateState extends State<SelectState> {
           .first
           .region;
 
-      _states = country2.region.map((e) => e.region).toList();
+      _states =
+          country2.region.map((e) => HtmlUnescape().convert(e.region)).toList();
       /********************* */
       if (widget.initialCityId != null) {
         var cityResponse =
@@ -118,7 +119,7 @@ class _SelectStateState extends State<SelectState> {
 
         _selectedCity = city["city"];
         _cities = cityResponse.map<String>((element) {
-          return element["city"].toString();
+          return HtmlUnescape().convert(element["city"].toString());
         }).toList() as List<String>;
         print("");
         if (mounted) {
