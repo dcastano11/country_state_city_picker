@@ -1,5 +1,6 @@
 library country_state_city_picker_nona;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -12,12 +13,14 @@ import 'package:html_unescape/html_unescape.dart';
 import 'model/select_status_model.dart' as StatusModel;
 import 'package:http/http.dart' as http;
 
+var response2;
+
 class SelectState extends StatefulWidget {
   final String baseUrl;
   final String api;
-  final ValueChanged<String> onCountryChanged;
-  final ValueChanged<String> onStateChanged;
-  final ValueChanged<String> onCityChanged;
+  final /* ValueChanged<String> */ onCountryChanged;
+  final /* ValueChanged<String> */ onStateChanged;
+  final /* ValueChanged<String> */ onCityChanged;
   final VoidCallback? onCountryTap;
   final VoidCallback? onStateTap;
   final VoidCallback? onCityTap;
@@ -29,8 +32,11 @@ class SelectState extends StatefulWidget {
   final double spacing;
   final bool withEmoji;
   final String accessToken;
+  final initialCityId;
+  final initialStateId;
+  final initialCountryId;
 
-  const SelectState(
+  SelectState(
       {Key? key,
       required this.onCountryChanged,
       required this.onStateChanged,
@@ -43,6 +49,9 @@ class SelectState extends StatefulWidget {
       this.onCountryTap,
       this.onStateTap,
       this.onCityTap,
+      this.initialCityId,
+      this.initialStateId,
+      this.initialCountryId,
       this.labelTextStyle,
       this.titleSpacing,
       this.withEmoji = false,
@@ -66,8 +75,57 @@ class _SelectStateState extends State<SelectState> {
 
   @override
   void initState() {
-    getCounty();
+    getCounty().then(initialRoutine);
+
     super.initState();
+  }
+
+  Future<FutureOr<Null>> initialRoutine(value) async {
+    if (widget.initialCountryId != null) {
+      var country = response2
+          .where((value) {
+            print(value);
+            return (StatusModel.CountryModel.fromJson(value).id.toString() ==
+                widget.initialCountryId.toString());
+          })
+          .toList()
+          ?.first;
+      var country2 = StatusModel.CountryModel.fromJson(country);
+      print(country);
+      _selectedCountry = (country2 as StatusModel.CountryModel).country;
+      _country = [_selectedCountry];
+      /********************* */
+      _selectedState = country2.region
+          .where((element) {
+            return (element.id == widget.initialStateId);
+          })
+          .toList()
+          .first
+          .region;
+
+      _states = country2.region.map((e) => e.region).toList();
+      /********************* */
+      if (widget.initialCityId != null) {
+        var cityResponse =
+            (await getResponse3(widget.initialCityId.toString()))["data"];
+        var city = cityResponse
+            .where((value) {
+              return (value["code"].toString() ==
+                  widget.initialCityId.toString());
+            })
+            .toList()
+            ?.first;
+
+        _selectedCity = city["city"];
+        _cities = cityResponse.map<String>((element) {
+          return element["city"].toString();
+        }).toList() as List<String>;
+        print("");
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    }
   }
 
   Future getResponse() async {
@@ -78,6 +136,16 @@ class _SelectStateState extends State<SelectState> {
 
   Future getResponse2(/* String baseUrl, String api */) async {
     var res = await getAll();
+    return jsonDecode(res.body);
+  }
+
+  Future getResponse3(/* String baseUrl, String api */ String regionId) async {
+    var res = await getRegion(regionId);
+    return jsonDecode(res.body);
+  }
+
+  Future getResponse4(/* String baseUrl, String api */ String regionId) async {
+    var res = await getCity2(regionId);
     return jsonDecode(res.body);
   }
 
@@ -92,15 +160,44 @@ class _SelectStateState extends State<SelectState> {
     return http.get(Uri.https(widget.baseUrl, widget.api), headers: headers2);
   }
 
+  Future<http.Response> getRegion(String id) {
+    String auth = "Bearer ${widget.accessToken}";
+
+    var headers2 = {
+      HttpHeaders.authorizationHeader: auth,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    };
+
+    return http.get(Uri.https(widget.baseUrl, "/api/getRegion" + "/$id"),
+        headers: headers2);
+  }
+
+  Future<http.Response> getCity2(String id) {
+    String auth = "Bearer ${widget.accessToken}";
+
+    var headers2 = {
+      HttpHeaders.authorizationHeader: auth,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    };
+
+    return http.get(Uri.https(widget.baseUrl, "/api/getCity" + "/$id"),
+        headers: headers2);
+  }
+
   Future getCounty() async {
-    var countryres = await getResponse2() as List;
+    response2 = await getResponse2();
+    var response = response2.map((value) {
+      return StatusModel.CountryModel.fromJson(value);
+    }).toList();
+    var countryres = response;
+    //var response2 = StatusModel.CountryModel.fromJson(response);
     countryres.forEach((data) {
       /*  var model = StatusModel.StatusModel();
       model.name = data['name'];
       model.emoji = data['emoji']; */
       if (!mounted) return;
       setState(() {
-        var a = HtmlUnescape().convert(data["country"]!);
+        var a = HtmlUnescape().convert(data.country!);
         //var a=parseFragment(data["country"]!).toString();
         _country
             .add(/* widget.withEmoji ? model.emoji ?? "" + "    " : "" +  */ a);
@@ -113,7 +210,7 @@ class _SelectStateState extends State<SelectState> {
   Future getState() async {
     var response = await getResponse2() as List;
     var takestate = response
-        .map((map) => StatusModel.ModelAllLocation.fromJson(map))
+        .map((map) => StatusModel.CountryModel.fromJson(map))
         .where((item) =>
             (/* (widget.withEmoji ? item.emoji + "    " : "") + */ HtmlUnescape()
                     .convert(item.country) ==
@@ -139,7 +236,7 @@ class _SelectStateState extends State<SelectState> {
   Future getCity() async {
     var response = await getResponse2() as List;
     var takestate = response
-        .map((map) => StatusModel.ModelAllLocation.fromJson(map))
+        .map((map) => StatusModel.CountryModel.fromJson(map))
         .where((item) =>
             (/* (widget.withEmoji ? item.emoji + "    " : "") + */ HtmlUnescape()
                     .convert(item.country) ==
@@ -150,6 +247,7 @@ class _SelectStateState extends State<SelectState> {
     states.forEach((f) {
       var name = f.where(
           (item) => HtmlUnescape().convert(item.region) == _selectedState);
+
       var cityname = name.map((item) => item.city).toList();
       cityname.forEach((ci) {
         if (!mounted) return;
@@ -166,34 +264,76 @@ class _SelectStateState extends State<SelectState> {
     return _cities;
   }
 
-  void _onSelectedCountry(String value) {
+  void _onSelectedCountry(String value /* , String id */) {
     if (!mounted) return;
     setState(() {
       _selectedState = "Escoge una región";
       _states = ["Escoge una región"];
       _selectedCountry = value;
-      this.widget.onCountryChanged(value);
+      var countryList = response2.map((value) {
+        return StatusModel.CountryModel.fromJson(value);
+      }).toList();
+      var country = countryList.where((element) {
+        return (element.country == value);
+      }).first;
+      this.widget.onCountryChanged(country.country, country.id);
       getState();
     });
   }
 
-  void _onSelectedState(String value) {
+  void _onSelectedState(String value /* , String id */) {
     if (!mounted) return;
     setState(() {
       _selectedCity = "Escoge una ciudad";
       _cities = ["Escoge una ciudad"];
       _selectedState = value;
-      this.widget.onStateChanged(value);
+
+      var countryList = response2.map((value) {
+        return StatusModel.CountryModel.fromJson(value);
+      }).toList();
+      StatusModel.CountryModel country = countryList.where((element) {
+        return (element.country == _selectedCountry);
+      }).first;
+
+      StatusModel.Region region =
+          country.region.where((element) => element.region == value).first;
+
+      this.widget.onStateChanged(region.region, region.id);
       getCity();
     });
   }
 
-  void _onSelectedCity(String value) {
+  Future<void> _onSelectedCity(String value /* , String id */) async {
     if (!mounted) return;
-    setState(() {
-      _selectedCity = value;
-      this.widget.onCityChanged(value);
-    });
+
+    _selectedCity = value;
+
+    var countryList = response2.map((value) {
+      return StatusModel.CountryModel.fromJson(value);
+    }).toList();
+    StatusModel.CountryModel country = countryList.where((element) {
+      return (element.country == _selectedCountry);
+    }).first;
+
+    StatusModel.Region region = country.region
+        .where((element) => element.region == _selectedState)
+        .first;
+
+    List hola = (await getResponse3(region.id.toString()))["data"] as List;
+    var res = hola
+        .where((value2) {
+          var val = value2["city"];
+          return (val.toString() == _selectedCity);
+        })
+        .toList()
+        .first;
+
+    //var hola2 = await getResponse4("654");
+
+    //StatusModel.City2 city = region.city.where((element) => false).first;
+
+    this.widget.onCityChanged(res["city"].toString(), res["code"].toString());
+    setState(() {});
   }
 
   @override

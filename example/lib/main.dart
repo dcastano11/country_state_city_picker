@@ -38,6 +38,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -50,6 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               SizedBox(height: 30.0),
               SelectState(
+                initialCountryId: 1,
+                initialStateId: 1,
+                initialCityId: 1,
                 baseUrl: baseUrl,
                 api: apiGetAll,
                 titleSpacing: 5,
@@ -60,19 +69,19 @@ class _MyHomePageState extends State<MyHomePage> {
                             const BorderRadius.all(Radius.circular(4.0))),
                     contentPadding: EdgeInsets.all(5.0)),
                 spacing: 25.0,
-                onCountryChanged: (value) {
+                onCountryChanged: (value, id) {
                   setState(() {
                     countryValue = value;
                   });
                 },
                 onCountryTap: () => displayMsg('You\'ve tapped on countries!'),
-                onStateChanged: (value) {
+                onStateChanged: (value, id) {
                   setState(() {
                     stateValue = value;
                   });
                 },
                 onStateTap: () => displayMsg('You\'ve tapped on states!'),
-                onCityChanged: (value) {
+                onCityChanged: (value, id) {
                   setState(() {
                     cityValue = value;
                   });

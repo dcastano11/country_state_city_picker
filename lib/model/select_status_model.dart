@@ -1,5 +1,13 @@
-class ModelAllLocation {
-  ModelAllLocation({
+import 'dart:convert';
+
+class GetAllModel {
+  GetAllModel({required List<CountryModel> countries});
+
+  factory GetAllModel.fromJson(String json) => jsonDecode(json);
+}
+
+class CountryModel {
+  CountryModel({
     required this.id,
     required this.country,
     required this.region,
@@ -9,8 +17,7 @@ class ModelAllLocation {
   String country;
   List<Region> region;
 
-  factory ModelAllLocation.fromJson(Map<String, dynamic> json) =>
-      ModelAllLocation(
+  factory CountryModel.fromJson(Map<String, dynamic> json) => CountryModel(
         id: json["id"],
         country: json["country"],
         region:
